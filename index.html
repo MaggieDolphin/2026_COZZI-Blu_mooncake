@@ -4,95 +4,346 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中秋月餅銷售即時看板</title>
+    <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen py-8 px-4 font-sans">
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 text-center md:text-left md:flex md:justify-between md:items-end border-b border-gray-200 pb-6">
+<body class="bg-slate-50 text-slate-800 min-h-screen py-8 px-4 font-sans">
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- 頂部頁首區 -->
+        <header class="mb-8 flex flex-col md:flex-row md:justify-between md:items-end border-b border-slate-200 pb-6 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">中秋月餅銷售即時看板</h1>
-                <p id="update-time" class="text-gray-400 mt-2 text-xs">載入中...</p>
+                <h1 class="text-xl font-black text-blue-500 tracking-tight">COZZI Blu 和逸飯店．桃園館</h1><br><h1 class="text-3xl font-black text-slate-900 tracking-tight">2026 中秋禮盒銷售戰績看板</h1>
+                <p id="update-time" class="text-slate-400 mt-2 text-sm">數據同步中...</p>
             </div>
-            <div class="mt-4 md:mt-0 text-right">
-                <span class="text-sm font-medium text-gray-400 block uppercase tracking-wider">總體達成率</span>
-                <span id="total-rate" class="text-5xl font-extrabold text-blue-600 tracking-tighter">0.0%</span>
-                <span class="text-sm text-gray-500 block mt-1" id="total-summary">總銷售: 0 / 總目標: 0 盒</span>
+            <div class="bg-white px-8 py-5 rounded-2xl shadow-md border border-slate-200/60 text-right min-w-[280px]">
+                <span class="text-sm font-bold text-slate-400 block uppercase tracking-wider mb-1">全館總達成率</span>
+                <span id="total-rate" class="text-6xl font-black text-blue-600 tracking-tighter">0.0%</span>
+                <span class="text-sm text-slate-500 block mt-2 font-semibold" id="total-summary">總銷售: 0 / 總目標: 0 盒</span>
             </div>
         </header>
 
-        <div class="w-full bg-gray-200 rounded-full h-3 mb-10 overflow-hidden shadow-inner">
-            <div id="total-progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+        <!-- 總進度條 -->
+        <div class="w-full bg-slate-200 rounded-full h-4 mb-10 overflow-hidden shadow-inner">
+            <div id="total-progress-bar" class="bg-blue-600 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- 數據表格區 -->
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden mb-12">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-500 text-xs font-semibold tracking-wider uppercase border-b border-gray-100">
-                            <th class="py-4 px-6">單位名稱</th>
-                            <th class="py-4 px-6 text-right">銷售目標 (盒)</th>
-                            <th class="py-4 px-6 text-center w-48">目前已售 (盒)</th>
-                            <th class="py-4 px-6 text-right">目前達成率</th>
-                            <th class="py-4 px-6 w-1/4">進度視覺化</th>
+                        <tr class="bg-slate-50 text-slate-600 text-sm font-black tracking-wider uppercase border-b border-slate-200">
+                            <th class="py-5 px-5 text-base">單位名稱</th>
+                            <th class="py-5 px-4 text-center bg-amber-50/40 border-x border-slate-200 text-base text-amber-900" colspan="2">茶舞拾光 ($980)</th>
+                            <th class="py-5 px-4 text-center bg-indigo-50/30 border-r border-slate-200 text-base text-indigo-900" colspan="2">月映拾光 ($1880)</th>
+                            <th class="py-5 px-5 text-right border-r border-slate-200 text-base">總目標 (盒)</th>
+                            <th class="py-5 px-5 text-right bg-slate-50/80 font-black text-base">總銷售 (盒)</th>
+                            <th class="py-5 px-5 text-right text-base">當前達成率</th>
+                            <th class="py-5 px-5 w-1/6 text-base">進度視覺化</th>
+                        </tr>
+                        <tr class="bg-slate-100/60 text-slate-500 text-xs font-bold tracking-wide border-b border-slate-200 text-center">
+                            <th class="py-2.5 px-5 text-left font-semibold text-slate-400">品項數據進度 ➔</th>
+                            <th class="py-2.5 px-3 border-l border-slate-200 font-bold text-amber-800 text-sm">目標</th>
+                            <th class="py-2.5 px-3 bg-amber-50/30 font-black text-amber-600 text-sm">已售</th>
+                            <th class="py-2.5 px-3 border-l border-slate-200 font-bold text-indigo-800 text-sm">目標</th>
+                            <th class="py-2.5 px-3 bg-indigo-50/20 font-black text-indigo-600 text-sm">已售</th>
+                            <th class="py-2.5 px-5 text-right font-bold border-l border-slate-200 text-sm">兩款相加</th>
+                            <th class="py-2.5 px-5 text-right font-bold bg-slate-100/80 text-slate-800 text-sm">累計銷售</th>
+                            <th class="py-2.5 px-5 text-right font-bold text-sm">單位進度</th>
+                            <th class="py-2.5 px-5"></th>
                         </tr>
                     </thead>
-                    <tbody id="sales-tbody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                        <tr><td colspan="5" class="text-center py-8 text-gray-400">正在獲取最新銷售數據...</td></tr>
+                    <tbody id="sales-tbody" class="divide-y divide-slate-200 text-base text-slate-700 font-medium">
+                        <tr><td colspan="9" class="text-center py-8 text-slate-400">正在獲取最新業績數據...</td></tr>
                     </tbody>
+                    <tfoot class="bg-slate-900 text-white font-bold text-base shadow-inner">
+                        <tr id="total-row">
+                            <!-- 由 JavaScript 動態生成總計數據 -->
+                        </tr>
+                    </tfoot>
                 </table>
+            </div>
+        </div>
+
+        <!-- 區塊：中秋專案限定禮盒介紹 -->
+        <div class="mb-12">
+            <h3 class="text-2xl font-black text-slate-900 flex items-center gap-2 mb-6">
+                <span class="inline-block w-2 h-6 bg-amber-500 rounded-sm"></span>中秋專案限定禮盒
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 茶舞拾光卡 -->
+                <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row gap-5 items-start">
+                    <div class="w-full sm:w-32 h-32 bg-gradient-to-br from-amber-100 to-amber-200 rounded-xl flex items-center justify-center text-amber-700 font-bold text-sm text-center p-2 shadow-inner border border-amber-200 shrink-0">
+                        <img src="mooncake-star.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="object-cover w-full h-full rounded-lg" alt="茶舞拾光">
+                        <span class="hidden">茶舞拾光禮盒<br>照片預留區</span>
+                    </div>
+                    <div class="space-y-3 flex-1">
+                        <h4 class="font-black text-slate-900 text-xl border-b border-slate-200 pb-2">茶舞拾光禮盒</h4>
+                        <div class="text-sm text-slate-600 space-y-2 leading-relaxed">
+                            <p class="font-bold text-slate-900 text-base">◆ 圓舞餅 * 18片</p>
+                            <p class="pl-4 text-slate-500 font-medium">（東方美人圓舞餅、金萱烏龍圓舞餅、紅玉紅茶圓舞餅各6片）</p>
+                            <p class="font-bold text-slate-900 text-base mt-2">◆ 茶包 * 3盒（每盒2入）</p>
+                            <p class="pl-4 text-slate-500 font-medium">（仙草薄荷、黑豆牛蒡、白玉蘭包種茶）</p>
+                        </div>
+                        <p class="text-2xl font-black text-amber-600 font-mono pt-1">NT$ 980</p>
+                    </div>
+                </div>
+                <!-- 月映拾光卡 -->
+                <div class="bg-white rounded-2xl p-6 border-2 border-slate-200 shadow-sm flex flex-col sm:flex-row gap-5 items-start">
+                    <div class="w-full sm:w-32 h-32 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center text-indigo-700 font-bold text-sm text-center p-2 shadow-inner border border-amber-200 shrink-0">
+                        <img src="mooncake-moon.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="object-cover w-full h-full rounded-lg" alt="月映拾光">
+                        <span class="hidden">月映拾光禮盒<br>照片預留區</span>
+                    </div>
+                    <div class="space-y-3 flex-1">
+                        <h4 class="font-black text-slate-900 text-xl border-b border-slate-200 pb-2">月映拾光禮盒</h4>
+                        <div class="text-sm text-slate-600 space-y-2 leading-relaxed">
+                            <p class="font-bold text-slate-900 text-base">◆ 桃山皮月餅 * 6顆</p>
+                            <p class="pl-4 text-slate-500 font-medium">（金桔檸檬、酒香巧克力、抹茶拿鐵各2顆）</p>
+                            <p class="font-bold text-slate-900 text-base mt-2">◆ 果茶包 * 6包</p>
+                            <p class="pl-4 text-slate-500 font-medium">（台東紅烏龍蜜柑紅韻）</p>
+                        </div>
+                        <p class="text-2xl font-black text-indigo-600 font-mono pt-1">NT$ 1,880</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 區塊：【激勵獎金說明與試算表】 -->
+        <div class="mt-12 border-t border-slate-200 pt-10">
+            <h2 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                <span class="inline-block w-2 h-6 bg-blue-600 rounded-sm"></span>禮盒銷售獎勵辦法
+            </h2>
+            
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-8 text-base text-slate-700 leading-relaxed font-medium">
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span><strong>整體專案銷售盒數(總盒數)</strong> 達成率必須<span class="font-black text-xl text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">≥92% (21,206 盒)</span>，得以啟動激勵獎金機制</span></li>
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span><strong>當館之銷售盒數</strong>達成率<span class="font-black text-xl text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">≥92%</span>才得以啟動</span></li>
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span>符合上述發放條件，獎金統一於專案結案後發放</span></li>
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span>國泰商旅/管顧/餐飲公司福委會，購買數量不計算激勵獎金</span></li>
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span>若客人於第一階段預訂，又於第二階段修改盒數，仍適用第一階段獎金計算(<span class="font-black text-slate-900">$50 及 $30</span>)，限同一筆訂單(同張發票&統編)且需達盒數條件，切勿刻意將不同公司併單</span></li>
+                    <li class="flex items-start gap-3"><span class="text-base mt-0.5 text-blue-600">■</span><span><strong>加碼衝刺獎金</strong>，數量可合併計算$980 款及$1,280 款，限同一筆訂單(同張發票&統編)</span></li>
+                </ul>
+
+                <!-- 階段表格 -->
+                <div class="overflow-hidden border-2 border-slate-200 rounded-xl mt-8 shadow-xs">
+                    <table class="w-full text-left border-collapse text-sm md:text-base">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-800 font-black border-b-2 border-slate-200 text-base">
+                                <th class="py-4 px-5 border-r border-slate-200">階段</th>
+                                <th class="py-4 px-5 border-r border-slate-200">訂單成立條件</th>
+                                <th class="py-4 px-5 border-r border-slate-200">適用期間 / 認定時點</th>
+                                <th class="py-4 px-5 text-center bg-cyan-50 text-cyan-950 border-r border-slate-200">茶舞拾光<br>激勵獎金</th>
+                                <th class="py-4 px-5 text-center bg-blue-50 text-blue-950">月映拾光<br>激勵獎金</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 font-bold text-slate-800">
+                            <tr>
+                                <td class="py-4 px-5 border-r border-slate-200 font-black text-slate-900">第一階段<br>(優先衝刺)</td>
+                                <td class="py-4 px-5 border-r border-slate-200 font-semibold">確認訂單並完成付款</td>
+                                <td class="py-4 px-5 border-r border-slate-200 font-semibold"><strong>8/10 前</strong>完成付款<br><span class="text-slate-500 text-xs font-bold">（以系統訂金日期為準）</span></td>
+                                <td class="py-4 px-5 text-center border-r border-slate-200 bg-cyan-50/30 font-black text-xl text-cyan-700">每盒 $30</td>
+                                <td class="py-4 px-5 text-center bg-blue-50/30 font-black text-xl text-blue-700">每盒 $50</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-5 border-r border-slate-200 font-black text-slate-900">第二階段<br>(後段接單)</td>
+                                <td class="py-4 px-5 border-r border-slate-200 font-semibold">接單成立</td>
+                                <td class="py-4 px-5 border-r border-slate-200 font-semibold"><strong>8/11 後</strong>接單</td>
+                                <td class="py-4 px-5 text-center border-r border-slate-200 bg-cyan-50/30 font-black text-xl text-cyan-700">每盒 $20</td>
+                                <td class="py-4 px-5 text-center bg-blue-50/30 font-black text-xl text-blue-700">每盒 $40</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 大客戶加碼衝刺獎金表格 -->
+                <div class="mt-10">
+                    <div class="overflow-hidden border-2 border-slate-200 rounded-xl shadow-xs">
+                        <table class="w-full text-left border-collapse text-sm md:text-base">
+                            <thead>
+                                <tr class="bg-blue-600 text-white font-black text-lg border-b border-slate-200">
+                                    <th class="py-4 px-5" colspan="3">大客戶加碼衝刺獎金（8/10 前下單適用）</th>
+                                </tr>
+                                <tr class="bg-slate-50 text-slate-800 font-black border-b-2 border-slate-200 text-sm">
+                                    <th class="py-3 px-5 border-r border-slate-200 w-1/2 text-center">條件</th>
+                                    <th class="py-3 px-5 border-r border-slate-200 text-center w-1/4">加碼獎金</th>
+                                    <th class="py-3 px-5 text-center w-1/4">備註</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 font-bold text-slate-800 text-center">
+                                <tr><td class="py-4 px-5 border-r border-slate-200 text-left pl-10 font-bold text-slate-900 text-base">下單數量 ≥ 200 盒</td><td class="py-4 px-5 border-r border-slate-200 text-slate-950 font-black text-xl bg-slate-50/50">$2,000</td><td class="py-4 px-5 text-slate-500 font-semibold text-sm">同一筆大客戶訂單</td></tr>
+                                <tr class="bg-slate-50/30"><td class="py-4 px-5 border-r border-slate-200 text-left pl-10 font-bold text-slate-900 text-base">399 盒 ≥ 下單數量 ≥ 300 盒</td><td class="py-4 px-5 border-r border-slate-200 text-slate-950 font-black text-xl bg-slate-50/50">$5,000</td><td class="py-4 px-5 text-slate-500 font-semibold text-sm">同一筆大客戶訂單</td></tr>
+                                <tr><td class="py-4 px-5 border-r border-slate-200 text-left pl-10 font-bold text-slate-900 text-base">499 盒 ≥ 下單數量 ≥ 400 盒</td><td class="py-4 px-5 border-r border-slate-200 text-slate-950 font-black text-xl bg-slate-50/50">$10,000</td><td class="py-4 px-5 text-slate-500 font-semibold text-sm">同一筆大客戶訂單</td></tr>
+                                <tr class="bg-slate-50/30"><td class="py-4 px-5 border-r border-slate-200 text-left pl-10 font-bold text-slate-900 text-base">下單數量 ≥ 500 盒</td><td class="py-4 px-5 border-r border-slate-200 text-slate-950 font-black text-xl bg-slate-50/50">$15,000</td><td class="py-4 px-5 text-slate-500 font-semibold text-sm">同一筆大客戶訂單</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 獎金使用辦法 -->
+                <div class="mt-10 space-y-4 pt-6 border-t-2 border-slate-200 text-base">
+                    <p class="font-black text-slate-900 text-lg">■ 獎金使用辦法：</p>
+                    <ol class="list-decimal pl-6 space-y-3 text-slate-700 font-bold leading-relaxed">
+                        <li>使用辦法由各館長決定，如做為個人獎金發放予員工，需由各館人資申報所得；如做為部門公積金，需發票/收據核銷</li>
+                        <li>總部由權責部門主管決定使用辦法，如做為個人獎金發放予員工，需由各館人資申報所得；如做為部門公積金，需發票/收據核銷</li>
+                    </ol>
+                </div>
+
+                <!-- 激勵獎金試算表區塊 -->
+                <div class="mt-12 border-t-2 border-slate-200 pt-8">
+                    <h3 class="text-xl font-black text-slate-900 text-center mb-8 tracking-wide">【 激勵獎金試算表 】</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 左表：月映拾光 -->
+                        <div class="border-2 border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-[#4f81bd] text-white font-black py-4 px-4 text-center text-lg">↓ 以月映拾光計算</div>
+                            <table class="w-full text-center border-collapse text-sm md:text-base">
+                                <thead>
+                                    <tr class="bg-[#dbe5f1] text-slate-800 font-black border-b-2 border-slate-300 text-base">
+                                        <th class="py-3 px-3 border-r border-slate-300 w-1/3">試算接單盒數</th>
+                                        <th class="py-3 px-3 border-r border-slate-300 text-[#c55a11] w-1/3">8/10前接單 <span class="text-xs font-bold block text-slate-600">(每盒$50)</span></th>
+                                        <th class="py-3 px-3 text-emerald-800 w-1/3">8/11後接單 <span class="text-xs font-bold block text-slate-600">(每盒$40)</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y-2 divide-slate-200 font-bold text-slate-800 text-base">
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">100盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">100盒 * $50<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $5,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">100盒 * $40<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $4,000</span></td></tr>
+                                    <tr><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">200盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">200盒 * $50 = $10,000<br>加碼獎金 $2,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $12,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">200盒 * $40<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $8,000</span></td></tr>
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">300盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">300盒 * $50 = $15,000<br>加碼獎金 $5,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $20,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">300盒 * $40<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $12,000</span></td></tr>
+                                    <tr><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">400盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">400盒 * $50 = $20,000<br>加碼獎金 $10,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $30,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">400盒 * $40<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $16,000</span></td></tr>
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">500盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">500盒 * $50 = $25,000<br>加碼獎金 $15,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $40,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">500盒 * $40<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $20,000</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 右表：茶舞拾光 -->
+                        <div class="border-2 border-slate-300 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-[#5b9bd5] text-white font-black py-4 px-4 text-center text-lg">↓ 以茶舞拾光計算</div>
+                            <table class="w-full text-center border-collapse text-sm md:text-base">
+                                <thead>
+                                    <tr class="bg-[#e9edf4] text-slate-800 font-black border-b-2 border-slate-300 text-base">
+                                        <th class="py-3 px-3 border-r border-slate-300 w-1/3">試算接單盒數</th>
+                                        <th class="py-3 px-3 border-r border-slate-300 text-[#c55a11] w-1/3">8/10前接單 <span class="text-xs font-bold block text-slate-600">(每盒$30)</span></th>
+                                        <th class="py-3 px-3 text-emerald-800 w-1/3">8/11後接單 <span class="text-xs font-bold block text-slate-600">(每盒$20)</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y-2 divide-slate-200 font-bold text-slate-800 text-base">
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">100盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">100盒 * $30<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $3,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">100盒 * $20<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $2,000</span></td></tr>
+                                    <tr><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">200盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">200盒 * $30 = $6,000<br>加碼獎金 $2,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $8,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">200盒 * $20<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $4,000</span></td></tr>
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">300盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">300盒 * $30 = $9,000<br>加碼獎金 $5,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $14,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">300盒 * $20<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $6,000</span></td></tr>
+                                    <tr><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">400盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">400盒 * $30 = $12,000<br>加碼獎金 $10,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $22,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">400盒 * $20<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $8,000</span></td></tr>
+                                    <tr class="bg-slate-50/60"><td class="py-4 px-3 border-r border-slate-300 font-black text-slate-900 text-lg">500盒</td><td class="py-4 px-3 border-r border-slate-300 text-left pl-4 font-semibold">500盒 * $30 = $15,000<br>加碼獎金 $15,000<br><span class="text-[#c55a11] font-black text-lg block mt-1">獎金 $30,000</span></td><td class="py-4 px-3 text-left pl-4 font-semibold">500盒 * $20<br><span class="text-emerald-600 font-black text-lg block mt-1">獎金 $10,000</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 讀取 GitHub 上的資料檔，加上時間戳防止瀏覽器快取舊資料
-        fetch('data.json?t=' + new Date().getTime())
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.getElementById('sales-tbody');
-                tbody.innerHTML = '';
-                let totalTarget = 0, totalCurrent = 0;
+        // 固定配置資料 (更新後的部門與最新指標目標)
+        const configData = [
+            { id: 1, name: "業務", targetStar: 1000, targetMoon: 180 },
+            { id: 2, name: "公關", targetStar: 550, targetMoon: 50 },
+            { id: 3, name: "客務", targetStar: 400, targetMoon: 70 },
+            { id: 4, name: "活動", targetStar: 200, targetMoon: 30 },
+            { id: 5, name: "工程", targetStar: 20, targetMoon: 10 },
+            { id: 6, name: "採購/財務", targetStar: 550, targetMoon: 150 },
+            { id: 7, name: "安全", targetStar: 10, targetMoon: 5 },
+            { id: 8, name: "資訊", targetStar: 10, targetMoon: 5 },
+            { id: 9, name: "人資", targetStar: 20, targetMoon: 10 },
+            { id: 10, name: "西餐", targetStar: 400, targetMoon: 120 },
+            { id: 11, name: "中餐", targetStar: 400, targetMoon: 120 },
+            { id: 12, name: "宴會", targetStar: 500, targetMoon: 269 },
+            { id: 13, name: "酒吧", targetStar: 40, targetMoon: 10 }
+        ];
 
-                data.forEach(unit => {
-                    totalTarget += unit.target;
-                    totalCurrent += unit.current;
-                    const rate = unit.target > 0 ? ((unit.current / unit.target) * 100).toFixed(1) : 0;
+        // 從 GitHub 上的 data.json 抓取最新數據並渲染網頁
+        function initDashboard() {
+            fetch('data.json?t=' + new Date().getTime())
+                .then(response => response.json())
+                .then(liveSales => {
+                    const tbody = document.getElementById('sales-tbody');
+                    tbody.innerHTML = '';
                     
-                    let barColor = 'bg-blue-500';
-                    if (rate >= 100) barColor = 'bg-emerald-500';
-                    else if (rate < 50) barColor = 'bg-amber-500';
+                    let gStarTarget = 0, gStarCurrent = 0;
+                    let gMoonTarget = 0, gMoonCurrent = 0;
+                    let gTotalTarget = 0, gTotalCurrent = 0;
 
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50/70 transition-colors';
-                    tr.innerHTML = `
-                        <td class="py-4 px-6 font-medium text-gray-900">${unit.name}</td>
-                        <td class="py-4 px-6 text-right font-mono font-medium">${unit.target.toLocaleString()}</td>
-                        <!-- 這裡改用 span 唯讀顯示，不提供輸入框 -->
-                        <td class="py-4 px-6 text-center font-mono font-bold text-gray-800 text-base">${unit.current.toLocaleString()}</td>
-                        <td class="py-4 px-6 text-right font-mono font-bold ${rate >= 100 ? 'text-emerald-600' : 'text-gray-900'}">${rate}%</td>
-                        <td class="py-4 px-6">
-                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                                <div class="${barColor} h-2 rounded-full transition-all duration-300" style="width: ${Math.min(rate, 100)}%"></div>
-                            </div>
-                        </td>
+                    configData.forEach(unit => {
+                        // 尋對對應單位的已售數據
+                        const sales = liveSales.find(s => s.id === unit.id) || { currentStar: 0, currentMoon: 0 };
+                        
+                        const unitTargetTotal = unit.targetStar + unit.targetMoon;
+                        const unitCurrentTotal = sales.currentStar + sales.currentMoon;
+                        const unitRate = unitTargetTotal > 0 ? ((unitCurrentTotal / unitTargetTotal) * 100).toFixed(1) : 0;
+
+                        gStarTarget += unit.targetStar;
+                        gStarCurrent += sales.currentStar;
+                        gMoonTarget += unit.targetMoon;
+                        gMoonCurrent += sales.currentMoon;
+                        gTotalTarget += unitTargetTotal;
+                        gTotalCurrent += unitCurrentTotal;
+
+                        let barColor = 'bg-blue-500';
+                        if (unitRate >= 100) barColor = 'bg-emerald-500';
+                        else if (unitRate < 50) barColor = 'bg-amber-500';
+
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50 border-b border-slate-100 transition-colors';
+                        tr.innerHTML = `
+                            <td class="py-4 px-5 font-bold text-slate-900 text-lg">${unit.name}</td>
+                            <td class="py-4 px-3 text-center font-mono text-slate-400 font-bold border-l border-slate-100 text-base">${unit.targetStar.toLocaleString()}</td>
+                            <td class="py-4 px-3 text-center font-mono font-black text-amber-700 text-lg bg-amber-50/5">${sales.currentStar.toLocaleString()}</td>
+                            <td class="py-4 px-3 text-center font-mono text-slate-400 font-bold border-l border-slate-100 text-base">${unit.targetMoon.toLocaleString()}</td>
+                            <td class="py-4 px-3 text-center font-mono font-black text-indigo-700 text-lg bg-indigo-50/5">${sales.currentMoon.toLocaleString()}</td>
+                            <td class="py-4 px-5 text-right font-mono font-bold text-slate-500 border-l border-slate-100 text-base">${unitTargetTotal.toLocaleString()}</td>
+                            <td class="py-4 px-5 text-right font-mono font-black text-slate-900 text-lg bg-slate-50/60">${unitCurrentTotal.toLocaleString()}</td>
+                            <td class="py-4 px-5 text-right font-mono font-black text-xl ${unitRate >= 100 ? 'text-emerald-600' : 'text-slate-900'}">${unitRate}%</td>
+                            <td class="py-4 px-5">
+                                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                                    <div class="${barColor} h-3 rounded-full transition-all duration-300" style="width: ${Math.min(unitRate, 100)}%"></div>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // 計算並更新全館總計
+                    const globalRate = gTotalTarget > 0 ? ((gTotalCurrent / gTotalTarget) * 100).toFixed(1) : 0;
+                    
+                    document.getElementById('total-rate').innerText = `${globalRate}%`;
+                    document.getElementById('total-summary').innerText = `總銷售: ${gTotalCurrent.toLocaleString()} / 總目標: ${gTotalTarget.toLocaleString()} 盒`;
+                    document.getElementById('total-progress-bar').style.width = `${Math.min(globalRate, 100)}%`;
+                    
+                    if (globalRate >= 100) {
+                        document.getElementById('total-rate').className = "text-6xl font-black text-emerald-600 tracking-tighter";
+                        document.getElementById('total-progress-bar').className = "bg-emerald-500 h-4 rounded-full transition-all duration-500 ease-out";
+                    } else {
+                        document.getElementById('total-rate').className = "text-6xl font-black text-blue-600 tracking-tighter";
+                        document.getElementById('total-progress-bar').className = "bg-blue-600 h-4 rounded-full transition-all duration-500 ease-out";
+                    }
+
+                    document.getElementById('total-row').innerHTML = `
+                        <td class="py-5 px-5 text-left font-black tracking-wide text-white text-lg">全館總計</td>
+                        <td class="py-5 px-3 text-center font-mono opacity-80 border-l border-slate-700 text-slate-300 text-base font-bold">${gStarTarget.toLocaleString()}</td>
+                        <td class="py-5 px-3 text-center font-mono font-black text-amber-400 bg-slate-800 text-xl">${gStarCurrent.toLocaleString()} 盒</td>
+                        <td class="py-5 px-3 text-center font-mono opacity-80 border-l border-slate-700 text-slate-300 text-base font-bold">${gMoonTarget.toLocaleString()}</td>
+                        <td class="py-5 px-3 text-center font-mono font-black text-indigo-400 bg-slate-800 text-xl">${gMoonCurrent.toLocaleString()} 盒</td>
+                        <td class="py-5 px-5 text-right font-mono opacity-80 border-l border-slate-700 text-slate-300 text-base font-bold">${gTotalTarget.toLocaleString()}</td>
+                        <td class="py-5 px-5 text-right font-mono font-black text-blue-400 bg-slate-850 text-xl">${gTotalCurrent.toLocaleString()} 盒</td>
+                        <td class="py-5 px-5 text-right font-mono font-black text-2xl text-emerald-400" colspan="2">${globalRate}% 達成</td>
                     `;
-                    tbody.appendChild(tr);
-                });
 
-                const totalRate = totalTarget > 0 ? ((totalCurrent / totalTarget) * 100).toFixed(1) : 0;
-                document.getElementById('total-rate').innerText = `${totalRate}%`;
-                document.getElementById('total-summary').innerText = `總銷售: ${totalCurrent.toLocaleString()} / 總目標: ${totalTarget.toLocaleString()} 盒`;
-                document.getElementById('total-progress-bar').style.width = `${Math.min(totalRate, 100)}%`;
-                
-                if (totalRate >= 100) {
-                    document.getElementById('total-rate').className = "text-5xl font-extrabold text-emerald-600 tracking-tighter";
-                    document.getElementById('total-progress-bar').className = "bg-emerald-500 h-3 rounded-full transition-all duration-500 ease-out";
-                }
-                document.getElementById('update-time').innerText = '數據同步時間：' + new Date().toLocaleString('zh-TW');
-            })
-            .catch(err => {
-                document.getElementById('sales-tbody').innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-500">數據載入失敗，請確認資料檔是否存在。</td></tr>`;
-            });
+                    document.getElementById('update-time').innerText = '數據更新時間：' + new Date().toLocaleString('zh-TW');
+                })
+                .catch(err => {
+                    document.getElementById('sales-tbody').innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500 font-bold">⚠️ 數據載入失敗，請檢查 GitHub 儲存庫中是否已有建立 data.json 檔案。</td></tr>`;
+                });
+        }
+
+        // 啟動專案
+        initDashboard();
     </script>
 </body>
 </html>
