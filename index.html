@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中秋月餅銷售即時看板</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen py-8 px-4 font-sans">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8 text-center md:text-left md:flex md:justify-between md:items-end border-b border-gray-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">中秋月餅銷售即時看板</h1>
+                <p id="update-time" class="text-gray-400 mt-2 text-xs">載入中...</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <span class="text-sm font-medium text-gray-400 block uppercase tracking-wider">總體達成率</span>
+                <span id="total-rate" class="text-5xl font-extrabold text-blue-600 tracking-tighter">0.0%</span>
+                <span class="text-sm text-gray-500 block mt-1" id="total-summary">總銷售: 0 / 總目標: 0 盒</span>
+            </div>
+        </header>
+
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-10 overflow-hidden shadow-inner">
+            <div id="total-progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-xs font-semibold tracking-wider uppercase border-b border-gray-100">
+                            <th class="py-4 px-6">單位名稱</th>
+                            <th class="py-4 px-6 text-right">銷售目標 (盒)</th>
+                            <th class="py-4 px-6 text-center w-48">目前已售 (盒)</th>
+                            <th class="py-4 px-6 text-right">目前達成率</th>
+                            <th class="py-4 px-6 w-1/4">進度視覺化</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-tbody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                        <tr><td colspan="5" class="text-center py-8 text-gray-400">正在獲取最新銷售數據...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 讀取 GitHub 上的資料檔，加上時間戳防止瀏覽器快取舊資料
+        fetch('data.json?t=' + new Date().getTime())
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('sales-tbody');
+                tbody.innerHTML = '';
+                let totalTarget = 0, totalCurrent = 0;
+
+                data.forEach(unit => {
+                    totalTarget += unit.target;
+                    totalCurrent += unit.current;
+                    const rate = unit.target > 0 ? ((unit.current / unit.target) * 100).toFixed(1) : 0;
+                    
+                    let barColor = 'bg-blue-500';
+                    if (rate >= 100) barColor = 'bg-emerald-500';
+                    else if (rate < 50) barColor = 'bg-amber-500';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50/70 transition-colors';
+                    tr.innerHTML = `
+                        <td class="py-4 px-6 font-medium text-gray-900">${unit.name}</td>
+                        <td class="py-4 px-6 text-right font-mono font-medium">${unit.target.toLocaleString()}</td>
+                        <!-- 這裡改用 span 唯讀顯示，不提供輸入框 -->
+                        <td class="py-4 px-6 text-center font-mono font-bold text-gray-800 text-base">${unit.current.toLocaleString()}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold ${rate >= 100 ? 'text-emerald-600' : 'text-gray-900'}">${rate}%</td>
+                        <td class="py-4 px-6">
+                            <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="${barColor} h-2 rounded-full transition-all duration-300" style="width: ${Math.min(rate, 100)}%"></div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                const totalRate = totalTarget > 0 ? ((totalCurrent / totalTarget) * 100).toFixed(1) : 0;
+                document.getElementById('total-rate').innerText = `${totalRate}%`;
+                document.getElementById('total-summary').innerText = `總銷售: ${totalCurrent.toLocaleString()} / 總目標: ${totalTarget.toLocaleString()} 盒`;
+                document.getElementById('total-progress-bar').style.width = `${Math.min(totalRate, 100)}%`;
+                
+                if (totalRate >= 100) {
+                    document.getElementById('total-rate').className = "text-5xl font-extrabold text-emerald-600 tracking-tighter";
+                    document.getElementById('total-progress-bar').className = "bg-emerald-500 h-3 rounded-full transition-all duration-500 ease-out";
+                }
+                document.getElementById('update-time').innerText = '數據同步時間：' + new Date().toLocaleString('zh-TW');
+            })
+            .catch(err => {
+                document.getElementById('sales-tbody').innerHTML = `<tr><td colspan="5" class="text-center py-8 text-red-500">數據載入失敗，請確認資料檔是否存在。</td></tr>`;
+            });
+    </script>
+</body>
+</html>
